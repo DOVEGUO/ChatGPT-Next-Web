@@ -45,7 +45,6 @@ import SizeIcon from "../icons/size.svg";
 import QualityIcon from "../icons/hd.svg";
 import StyleIcon from "../icons/palette.svg";
 import PluginIcon from "../icons/plugin.svg";
-import ShortcutkeyIcon from "../icons/shortcutkey.svg";
 import McpToolIcon from "../icons/tool.svg";
 import HeadphoneIcon from "../icons/headphone.svg";
 import {
@@ -500,7 +499,6 @@ export function ChatActions(props: {
   showPromptHints: () => void;
   hitBottom: boolean;
   uploading: boolean;
-  setShowShortcutKeyModal: React.Dispatch<React.SetStateAction<boolean>>;
   webSearchEnabled: boolean;
   toggleWebSearch: () => void;
   setUserInput: (input: string) => void;
@@ -2092,7 +2090,6 @@ function _Chat() {
                   setUserInput("/");
                   onSearch("");
                 }}
-                setShowShortcutKeyModal={setShowShortcutKeyModal}
                 webSearchEnabled={webSearchEnabled}
                 toggleWebSearch={() => setWebSearchEnabled((enabled) => !enabled)}
                 setUserInput={setUserInput}
