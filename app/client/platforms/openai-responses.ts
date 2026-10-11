@@ -1,4 +1,3 @@
-import { OpenaiPath } from "@/app/constant";
 import {
   ChatMessageTool,
   useAppConfig,
@@ -65,7 +64,6 @@ export async function chatWithResponses(
 
   const shouldStream = !!options.config.stream;
   let responseText = "";
-  let lastResponse: Response | undefined;
   let currentInput = input;
 
   try {
@@ -92,7 +90,6 @@ export async function chatWithResponses(
         body: JSON.stringify(body),
         signal: abort.signal,
       });
-      lastResponse = res;
 
       if (!res.ok) {
         throw new Error(
@@ -196,7 +193,6 @@ export async function chatWithResponses(
         };
         options.onBeforeTool?.(toolMessage);
         let resultText = "";
-        let isError = false;
         try {
           const fn = funcs[call.name];
           if (!fn) throw new Error(`Tool not found: ${call.name}`);
@@ -213,11 +209,10 @@ export async function chatWithResponses(
             isError: false,
           });
         } catch (e) {
-          isError = true;
           resultText = e instanceof Error ? e.message : String(e);
           options.onAfterTool?.({
             ...toolMessage,
-            isError,
+            isError: true,
             errorMsg: resultText,
           });
         }
