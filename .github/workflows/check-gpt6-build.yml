@@ -1,0 +1,35 @@
+name: Verify NextChat build (GPT-6 branch)
+
+on:
+  push:
+    branches:
+      - feat/gpt6-haiku55-vercel
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --frozen-lockfile
+      - name: Check TypeScript
+        run: |
+          corepack enable
+          yarn tsc --noEmit
+      - name: Build Next.js
+        run: |
+          corepack enable
+          yarn build

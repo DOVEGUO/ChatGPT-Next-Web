@@ -182,6 +182,7 @@ export const OpenaiPath = {
   UsagePath: "dashboard/billing/usage",
   SubsPath: "dashboard/billing/subscription",
   ListModelPath: "v1/models",
+  ResponsesPath: "v1/responses",
 };
 
 export const Azure = {
@@ -493,7 +494,10 @@ export const VISION_MODEL_REGEXES = [
   /o3/,
   /o4-mini/,
   /grok-4/i,
-  /gpt-5/
+  /gpt-5/,
+  /gpt-6/,
+  /^deepseek-flash$/,
+  /claude-(?:haiku|sonnet|opus)-5/,
 ];
 
 export const EXCLUDE_VISION_MODEL_REGEXES = [/claude-3-5-haiku-20241022/];
@@ -518,6 +522,9 @@ const openaiModels = [
   "gpt-4.1-nano-2025-04-14",
   "gpt-4.5-preview",
   "gpt-4.5-preview-2025-02-27",
+  "gpt-5.4-mini",
+  "gpt-6-luna",
+  "gpt-6.1-sol",
   "gpt-5-chat",
   "gpt-5-mini",
   "gpt-5-nano",
@@ -581,6 +588,7 @@ const anthropicModels = [
   "claude-3-7-sonnet-latest",
   "claude-sonnet-4-20250514",
   "claude-opus-4-20250514",
+  "claude-haiku-5-5",
 ];
 
 const baiduModels = [
@@ -650,7 +658,13 @@ const iflytekModels = [
   "4.0Ultra",
 ];
 
-const deepseekModels = ["deepseek-chat", "deepseek-coder", "deepseek-reasoner"];
+// The current DeepSeek V4.1 Flash API identifier is "deepseek-flash".
+const deepseekModels = [
+  "deepseek-flash",
+  "deepseek-chat",
+  "deepseek-coder",
+  "deepseek-reasoner",
+];
 
 const xAIModes = [
   "grok-beta",
