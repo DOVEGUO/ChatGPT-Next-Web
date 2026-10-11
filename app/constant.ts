@@ -589,6 +589,7 @@ const anthropicModels = [
   "claude-sonnet-4-20250514",
   "claude-opus-4-20250514",
   "claude-haiku-5-5",
+  "claude-opus-5-5",
 ];
 
 const baiduModels = [
