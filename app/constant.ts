@@ -496,6 +496,7 @@ export const VISION_MODEL_REGEXES = [
   /grok-4/i,
   /gpt-5/,
   /gpt-6/,
+  /^deepseek-flash$/,
   /claude-(?:haiku|sonnet|opus)-5/,
 ];
 
@@ -657,7 +658,13 @@ const iflytekModels = [
   "4.0Ultra",
 ];
 
-const deepseekModels = ["deepseek-chat", "deepseek-coder", "deepseek-reasoner"];
+// The current DeepSeek V4.1 Flash API identifier is "deepseek-flash".
+const deepseekModels = [
+  "deepseek-flash",
+  "deepseek-chat",
+  "deepseek-coder",
+  "deepseek-reasoner",
+];
 
 const xAIModes = [
   "grok-beta",
