@@ -999,6 +999,7 @@ function _Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1113,7 +1114,7 @@ function _Chat() {
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, attachImages)
+      .onUserInput(userInput, attachImages, false, webSearchEnabled)
       .then(() => setIsLoading(false));
     setAttachImages([]);
     chatStore.setLastInput(userInput);
@@ -1266,7 +1267,9 @@ function _Chat() {
     setIsLoading(true);
     const textContent = getMessageTextContent(userMessage);
     const images = getMessageImages(userMessage);
-    chatStore.onUserInput(textContent, images).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput(textContent, images, false, !!userMessage.webSearch)
+      .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
 
@@ -2021,6 +2024,22 @@ function _Chat() {
                               </div>
                             )}
                           </div>
+                          {!isUser && !!message.webSources?.length && (
+                            <div className={styles["web-search-sources"]}>
+                              <span>{Locale.Chat.InputActions.WebSources}</span>
+                              {message.webSources.map((source, index) => (
+                                <a
+                                  key={source.url}
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={source.description}
+                                >
+                                  {index + 1}. {source.title || source.url}
+                                </a>
+                              ))}
+                            </div>
+                          )}
                           {message?.audio_url && (
                             <div className={styles["chat-message-audio"]}>
                               <audio src={message.audio_url} controls />
@@ -2124,6 +2143,21 @@ function _Chat() {
                   onClick={() => doSubmit(userInput)}
                 />
               </label>
+              <div className={styles["web-search-options"]}>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={webSearchEnabled}
+                  className={clsx(styles["web-search-toggle"], {
+                    [styles["web-search-toggle-active"]]: webSearchEnabled,
+                  })}
+                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                  title={Locale.Chat.InputActions.WebSearchHint}
+                >
+                  <span aria-hidden="true">🌐</span>
+                  {Locale.Chat.InputActions.WebSearch}
+                </button>
+              </div>
             </div>
           </div>
           <div
