@@ -45,7 +45,6 @@ import SizeIcon from "../icons/size.svg";
 import QualityIcon from "../icons/hd.svg";
 import StyleIcon from "../icons/palette.svg";
 import PluginIcon from "../icons/plugin.svg";
-import ShortcutkeyIcon from "../icons/shortcutkey.svg";
 import McpToolIcon from "../icons/tool.svg";
 import HeadphoneIcon from "../icons/headphone.svg";
 import {
@@ -500,7 +499,8 @@ export function ChatActions(props: {
   showPromptHints: () => void;
   hitBottom: boolean;
   uploading: boolean;
-  setShowShortcutKeyModal: React.Dispatch<React.SetStateAction<boolean>>;
+  webSearchEnabled: boolean;
+  toggleWebSearch: () => void;
   setUserInput: (input: string) => void;
   setShowChatSidePanel: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -825,13 +825,20 @@ export function ChatActions(props: {
           />
         )}
 
-        {!isMobileScreen && (
-          <ChatAction
-            onClick={() => props.setShowShortcutKeyModal(true)}
-            text={Locale.Chat.ShortcutKey.Title}
-            icon={<ShortcutkeyIcon />}
-          />
-        )}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={props.webSearchEnabled}
+          className={clsx(styles["web-search-toolbar-toggle"], {
+            [styles["web-search-toolbar-toggle-active"]]:
+              props.webSearchEnabled,
+          })}
+          onClick={props.toggleWebSearch}
+          title={Locale.Chat.InputActions.WebSearchHint}
+        >
+          <span aria-hidden="true">🌐</span>
+          {Locale.Chat.InputActions.WebSearch}
+        </button>
         {!isMobileScreen && <MCPAction />}
       </>
       <div className={styles["chat-input-actions-end"]}>
@@ -999,6 +1006,7 @@ function _Chat() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1113,7 +1121,7 @@ function _Chat() {
     }
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, attachImages)
+      .onUserInput(userInput, attachImages, false, webSearchEnabled)
       .then(() => setIsLoading(false));
     setAttachImages([]);
     chatStore.setLastInput(userInput);
@@ -1266,7 +1274,9 @@ function _Chat() {
     setIsLoading(true);
     const textContent = getMessageTextContent(userMessage);
     const images = getMessageImages(userMessage);
-    chatStore.onUserInput(textContent, images).then(() => setIsLoading(false));
+    chatStore
+      .onUserInput(textContent, images, false, !!userMessage.webSearch)
+      .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
 
@@ -2021,6 +2031,22 @@ function _Chat() {
                               </div>
                             )}
                           </div>
+                          {!isUser && !!message.webSources?.length && (
+                            <div className={styles["web-search-sources"]}>
+                              <span>{Locale.Chat.InputActions.WebSources}</span>
+                              {message.webSources.map((source, index) => (
+                                <a
+                                  key={source.url}
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={source.description}
+                                >
+                                  {index + 1}. {source.title || source.url}
+                                </a>
+                              ))}
+                            </div>
+                          )}
                           {message?.audio_url && (
                             <div className={styles["chat-message-audio"]}>
                               <audio src={message.audio_url} controls />
@@ -2064,7 +2090,8 @@ function _Chat() {
                   setUserInput("/");
                   onSearch("");
                 }}
-                setShowShortcutKeyModal={setShowShortcutKeyModal}
+                webSearchEnabled={webSearchEnabled}
+                toggleWebSearch={() => setWebSearchEnabled((enabled) => !enabled)}
                 setUserInput={setUserInput}
                 setShowChatSidePanel={setShowChatSidePanel}
               />
