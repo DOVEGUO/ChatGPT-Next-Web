@@ -44,6 +44,7 @@ import {
   getTimeoutMSByModel,
 } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
+import { chatWithResponses } from "./openai-responses";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -184,6 +185,9 @@ export class ChatGPTApi implements LLMApi {
   }
 
   async chat(options: ChatOptions) {
+    if (options.config.model.startsWith("gpt-6")) {
+      return chatWithResponses(options, this.path(OpenaiPath.ResponsesPath));
+    }
     const modelConfig = {
       ...useAppConfig.getState().modelConfig,
       ...useChatStore.getState().currentSession().mask.modelConfig,
