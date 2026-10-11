@@ -7,6 +7,7 @@ import {
 import { preProcessImageContent } from "@/app/utils/chat";
 import { fetch } from "@/app/utils/stream";
 import { ChatOptions, getHeaders, MultimodalContent } from "../api";
+import type { FunctionToolItem } from "@/app/store/plugin";
 
 /**
  * Responses API for GPT-6. Retain the existing Chat Completions client for
@@ -46,9 +47,13 @@ export async function chatWithResponses(
     }
   }
 
-  const [providedTools, funcs] = usePluginStore
+  const [rawTools, rawFuncs] = usePluginStore
     .getState()
     .getAsTools(useChatStore.getState().currentSession().mask?.plugin || []);
+  // The Zustand plugin store's reducer infers {} for each tuple item.
+  // Restore the actual tool/function shapes before mapping them.
+  const providedTools = rawTools as FunctionToolItem[];
+  const funcs = rawFuncs as Record<string, Function>;
 
   const tools = providedTools
     .filter((tool) => !!tool?.function?.name)
