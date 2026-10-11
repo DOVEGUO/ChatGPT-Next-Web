@@ -73,6 +73,22 @@ const ClaudeMapper = {
 
 const keys = ["claude-2, claude-instant-1"];
 
+/**
+ * Anthropic removed non-default sampling controls starting with Claude 4.7
+ * and throughout Claude 5.x. Older models still accept these controls.
+ * Version components must be at most two digits so date-stamped IDs such as
+ * claude-opus-4-20250514 are not mistaken for Claude 4.20.
+ */
+export function omitsSamplingParameters(model: string): boolean {
+  const match = model.match(
+    /^claude-(?:opus|sonnet|haiku)-(\d{1,2})(?:-(\d{1,2}))?(?:-|$)/,
+  );
+  if (!match) return false;
+  const major = Number(match[1]);
+  const minor = Number(match[2] ?? 0);
+  return major >= 5 || (major === 4 && minor >= 7);
+}
+
 export class ClaudeApi implements LLMApi {
   speech(options: SpeechOptions): Promise<ArrayBuffer> {
     throw new Error("Method not implemented.");
@@ -185,14 +201,15 @@ export class ClaudeApi implements LLMApi {
 
       model: modelConfig.model,
       max_tokens: modelConfig.max_tokens,
-      // Haiku 5.5 rejects sampling parameters; older Claude models keep them.
-      ...(modelConfig.model.startsWith("claude-haiku-5-5")
-        ? {}
-        : {
+      // Claude 4.7+ and 5.x reject non-default sampling parameters.
+      // Do not send the fields at all; legacy Claude models keep them.
+      ...(!omitsSamplingParameters(modelConfig.model)
+        ? {
             temperature: modelConfig.temperature,
             top_p: modelConfig.top_p,
             top_k: 5,
-          }),
+          }
+        : {}),
     };
 
     const path = this.path(Anthropic.ChatPath);
