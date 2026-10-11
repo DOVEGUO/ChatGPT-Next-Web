@@ -188,8 +188,16 @@ export class ClaudeApi implements LLMApi {
       temperature: modelConfig.temperature,
       top_p: modelConfig.top_p,
       // top_k: modelConfig.top_k,
-      top_k: 5,
+      // Haiku 5.5 rejects top_k and non-default sampling parameters.
+      ...(modelConfig.model.startsWith("claude-haiku-5-5")
+        ? {}
+        : { top_k: 5, temperature: modelConfig.temperature, top_p: modelConfig.top_p }),
     };
+    if (modelConfig.model.startsWith("claude-haiku-5-5")) {
+      delete requestBody.temperature;
+      delete requestBody.top_p;
+      delete requestBody.top_k;
+    }
 
     const path = this.path(Anthropic.ChatPath);
 
