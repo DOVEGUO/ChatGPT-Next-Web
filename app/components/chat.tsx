@@ -501,6 +501,8 @@ export function ChatActions(props: {
   hitBottom: boolean;
   uploading: boolean;
   setShowShortcutKeyModal: React.Dispatch<React.SetStateAction<boolean>>;
+  webSearchEnabled: boolean;
+  toggleWebSearch: () => void;
   setUserInput: (input: string) => void;
   setShowChatSidePanel: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -825,13 +827,20 @@ export function ChatActions(props: {
           />
         )}
 
-        {!isMobileScreen && (
-          <ChatAction
-            onClick={() => props.setShowShortcutKeyModal(true)}
-            text={Locale.Chat.ShortcutKey.Title}
-            icon={<ShortcutkeyIcon />}
-          />
-        )}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={props.webSearchEnabled}
+          className={clsx(styles["web-search-toolbar-toggle"], {
+            [styles["web-search-toolbar-toggle-active"]]:
+              props.webSearchEnabled,
+          })}
+          onClick={props.toggleWebSearch}
+          title={Locale.Chat.InputActions.WebSearchHint}
+        >
+          <span aria-hidden="true">🌐</span>
+          {Locale.Chat.InputActions.WebSearch}
+        </button>
         {!isMobileScreen && <MCPAction />}
       </>
       <div className={styles["chat-input-actions-end"]}>
@@ -2084,6 +2093,8 @@ function _Chat() {
                   onSearch("");
                 }}
                 setShowShortcutKeyModal={setShowShortcutKeyModal}
+                webSearchEnabled={webSearchEnabled}
+                toggleWebSearch={() => setWebSearchEnabled((enabled) => !enabled)}
                 setUserInput={setUserInput}
                 setShowChatSidePanel={setShowChatSidePanel}
               />
@@ -2143,21 +2154,6 @@ function _Chat() {
                   onClick={() => doSubmit(userInput)}
                 />
               </label>
-              <div className={styles["web-search-options"]}>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={webSearchEnabled}
-                  className={clsx(styles["web-search-toggle"], {
-                    [styles["web-search-toggle-active"]]: webSearchEnabled,
-                  })}
-                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                  title={Locale.Chat.InputActions.WebSearchHint}
-                >
-                  <span aria-hidden="true">🌐</span>
-                  {Locale.Chat.InputActions.WebSearch}
-                </button>
-              </div>
             </div>
           </div>
           <div
